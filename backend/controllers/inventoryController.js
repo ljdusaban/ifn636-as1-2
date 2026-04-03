@@ -1,4 +1,5 @@
 //Inventory controller
+const Product = require('../models/Product');
 
 //Create Product
 const createProduct = async (req, res) => {
@@ -46,3 +47,5 @@ const createProduct = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+module.exports = { createProduct };

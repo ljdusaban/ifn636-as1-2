@@ -1,3 +1,6 @@
+
+const mongoose = require('mongoose');
+
 const sizeTypes = ['XS', 'S', 'M', 'L', 'XL'];
 
 const productSchema = new mongoose.Schema(
@@ -15,3 +18,5 @@ const productSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+module.exports = mongoose.model('Product', productSchema);
