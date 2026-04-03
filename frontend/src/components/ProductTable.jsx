@@ -30,7 +30,7 @@ const ProductTable = ({ products = [], selectedProductId, onSelectProduct, loadi
               <th>Qty</th>
               <th>Size</th>
               <th>Colour</th>
-              <th>Low Stock</th>
+              <th>Image</th>
             </tr>
           </thead>
           <tbody>
@@ -48,7 +48,20 @@ const ProductTable = ({ products = [], selectedProductId, onSelectProduct, loadi
                   <td>{product.stockQty}</td>
                   <td>{product.size}</td>
                   <td>{product.colour}</td>
-                  <td>{product.lowStockThreshold}</td>
+                  <td>
+                    {product.image ? (
+                      <img
+                        src={product.image}
+                        alt={product.productName}
+                        className="product-thumb"
+                        onError={(event) => {
+                          event.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <span className="no-image">No image</span>
+                    )}
+                  </td>
                 </tr>
               );
             })}

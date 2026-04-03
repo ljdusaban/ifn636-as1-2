@@ -12,6 +12,10 @@ const Products = () => {
   const [formMode, setFormMode] = useState('create'); // create | update
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [sizeFilter, setSizeFilter] = useState('');
+  const [priceValue, setPriceValue] = useState('');
+  const [priceOperator, setPriceOperator] = useState('gte');
 
   const selectedProduct = useMemo(
     () => products.find((p) => p._id === selectedProductId) || null,
@@ -25,16 +29,35 @@ const Products = () => {
 
   const fetchProducts = useCallback(async () => {
     if (!user?.token) return;
+
+    const params = {};
+    if (searchKeyword.trim()) {
+      params.keyword = searchKeyword.trim();
+    }
+    if (sizeFilter) {
+      params.size = sizeFilter;
+    }
+    if (priceValue !== '') {
+      params.unitPrice = priceValue;
+      params.priceFilter = priceOperator;
+    }
+
     setLoading(true);
     try {
-      const response = await axiosInstance.get('/api/inventory/products', authHeaders);
+      const response = await axiosInstance.get('/api/inventory/products', {
+        ...authHeaders,
+        params,
+      });
       setProducts(response.data);
+      setSelectedProductId((previousId) => (
+        response.data.some((item) => item._id === previousId) ? previousId : null
+      ));
     } catch (error) {
       alert('Failed to fetch products.');
     } finally {
       setLoading(false);
     }
-  }, [user?.token, authHeaders]);
+  }, [user?.token, authHeaders, searchKeyword, sizeFilter, priceValue, priceOperator]);
 
   useEffect(() => {
     fetchProducts();
@@ -54,6 +77,23 @@ const Products = () => {
   const closeForm = () => {
     setIsFormOpen(false);
   };
+
+  const applyFilters = () => {
+    fetchProducts();
+  };
+
+  const clearFilters = () => {
+    setSearchKeyword('');
+    setSizeFilter('');
+    setPriceValue('');
+    setPriceOperator('gte');
+  };
+
+  useEffect(() => {
+    if (!searchKeyword && !sizeFilter && priceValue === '' && priceOperator === 'gte') {
+      fetchProducts();
+    }
+  }, [searchKeyword, sizeFilter, priceValue, priceOperator, fetchProducts]);
 
   const handleDelete = async () => {
     if (!selectedProduct) return;
@@ -99,38 +139,92 @@ const Products = () => {
     <div className="dashboard-page">
       <div className="dashboard-container">
         <div className="panel-white mb-4">
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={openCreateForm}
-              className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
-            >
+          <div className="toolbar-row">
+            <div className="action-group">
+              <button
+                type="button"
+                onClick={openCreateForm}
+                className="action-btn action-add"
+              >
               Add
-            </button>
+              </button>
 
-            <button
-              type="button"
-              onClick={openUpdateForm}
-              disabled={!selectedProduct}
-              className={`px-4 py-2 rounded text-white ${selectedProduct
-                  ? 'bg-amber-500 hover:bg-amber-600'
-                  : 'bg-amber-300 cursor-not-allowed'
-                }`}
-            >
+              <button
+                type="button"
+                onClick={openUpdateForm}
+                disabled={!selectedProduct}
+                className="action-btn action-update"
+              >
               Update
-            </button>
+              </button>
 
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={!selectedProduct}
-              className={`px-4 py-2 rounded text-white ${selectedProduct
-                  ? 'bg-red-600 hover:bg-red-700'
-                  : 'bg-red-300 cursor-not-allowed'
-                }`}
-            >
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={!selectedProduct}
+                className="action-btn action-delete"
+              >
               Delete
-            </button>
+              </button>
+            </div>
+
+            <div className="filter-group">
+              <input
+                type="text"
+                placeholder="Search by SKU or Name"
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+                className="toolbar-input"
+              />
+
+              <select
+                value={priceOperator}
+                onChange={(e) => setPriceOperator(e.target.value)}
+                className="toolbar-select"
+              >
+                <option value="gte">Price &gt;=</option>
+                <option value="lte">Price &lt;=</option>
+              </select>
+
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="Price"
+                value={priceValue}
+                onChange={(e) => setPriceValue(e.target.value)}
+                className="toolbar-number"
+              />
+
+              <select
+                value={sizeFilter}
+                onChange={(e) => setSizeFilter(e.target.value)}
+                className="toolbar-select"
+              >
+                <option value="">All Sizes</option>
+                <option value="XS">XS</option>
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+              </select>
+
+              <button
+                type="button"
+                onClick={applyFilters}
+                className="action-btn action-search"
+              >
+                Search
+              </button>
+
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="action-btn action-clear"
+              >
+                Clear
+              </button>
+            </div>
           </div>
         </div>
 
