@@ -423,7 +423,7 @@ body {
 }
 
 .field-hint {
-  margin-top: -6px;
+  margin-top: 10px;
   margin-bottom: 8px;
   font-size: 12px;
   color: #8b5e08;
@@ -436,6 +436,11 @@ body {
   object-fit: cover;
   border-radius: 10px;
   border: 1px solid #d7deea;
+}
+
+.low-stock {
+  color: var(--danger);
+  font-weight: 700;
 }
 
 @media (max-width: 900px) {

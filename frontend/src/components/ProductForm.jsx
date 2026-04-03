@@ -48,12 +48,15 @@ const ProductForm = ({ mode, initialData, disableQuantity, onSubmit, onCancel })
       sku: formData.sku.trim(),
       productName: formData.productName.trim(),
       unitPrice: Number(formData.unitPrice),
-      stockQty: Number(formData.stockQty),
       size: formData.size,
       colour: formData.colour.trim(),
       image: formData.image.trim(),
       lowStockThreshold: Number(formData.lowStockThreshold),
     };
+
+    if (!disableQuantity) {
+      payload.stockQty = Number(formData.stockQty);
+    }
 
     onSubmit(payload);
   };

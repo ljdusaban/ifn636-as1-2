@@ -134,18 +134,25 @@ const Products = () => {
 
   const handleFormSubmit = async (payload) => {
     try {
+      let savedProduct;
+
       if (formMode === 'create') {
-        await axiosInstance.post('/api/inventory/products', payload, authHeaders);
+        const response = await axiosInstance.post('/api/inventory/products', payload, authHeaders);
+        savedProduct = response.data;
+        alert('Product created successfully.');
+        setIsFormOpen(false);
+        setSelectedProductId(savedProduct?._id || null);
       } else if (selectedProduct) {
-        await axiosInstance.put(
+        const response = await axiosInstance.put(
           '/api/inventory/products/' + selectedProduct._id,
           payload,
           authHeaders
         );
+        savedProduct = response.data;
+        alert('Saved successfully.');
+        setSelectedProductId(savedProduct?._id || selectedProduct._id);
       }
 
-      setIsFormOpen(false);
-      setSelectedProductId(null);
       await fetchProducts();
     } catch (error) {
       alert(error?.response?.data?.message || 'Failed to save product.');

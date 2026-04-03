@@ -54,7 +54,17 @@ const ProductTable = ({ products = [], selectedProductId, onSelectProduct, loadi
                   <td>{product.sku}</td>
                   <td>{product.productName}</td>
                   <td>{Number(product.unitPrice).toFixed(2)}</td>
-                  <td>{product.stockQty}</td>
+                  <td>
+                    <span
+                      className={
+                        Number(product.stockQty) <= Number(product.lowStockThreshold)
+                          ? 'low-stock'
+                          : ''
+                      }
+                    >
+                      {product.stockQty}
+                    </span>
+                  </td>
                   <td>{product.size}</td>
                   <td>{product.colour}</td>
                   <td>
