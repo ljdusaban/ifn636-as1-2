@@ -23,20 +23,28 @@ const Login = () => {
     <div className="auth-page">
       <form onSubmit={handleSubmit} className="auth-card">
         <h1>Login</h1>
-        <input
-          type="text"
-          placeholder="Username"
-          value={formData.username}
-          onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-          className="field"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-          className="field"
-        />
+        <div className="form-field">
+          <label htmlFor="username">Username</label>
+          <input
+            id="username"
+            type="text"
+            placeholder="Username"
+            value={formData.username}
+            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            className="field"
+          />
+        </div>
+        <div className="form-field">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            className="field"
+          />
+        </div>
         <button type="submit" className="btn-auth">
           Login
         </button>

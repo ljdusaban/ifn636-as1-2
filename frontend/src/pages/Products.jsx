@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Products = () => {
   const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
 
   const [products, setProducts] = useState([]);
   const [selectedProductId, setSelectedProductId] = useState(null);
@@ -16,6 +17,12 @@ const Products = () => {
   const [sizeFilter, setSizeFilter] = useState('');
   const [priceValue, setPriceValue] = useState('');
   const [priceOperator, setPriceOperator] = useState('gte');
+  const [activeFilters, setActiveFilters] = useState({
+    keyword: '',
+    size: '',
+    unitPrice: '',
+    priceFilter: 'gte',
+  });
 
   const selectedProduct = useMemo(
     () => products.find((p) => p._id === selectedProductId) || null,
@@ -27,19 +34,19 @@ const Products = () => {
     [user?.token]
   );
 
-  const fetchProducts = useCallback(async () => {
+  const fetchProducts = useCallback(async (filters = activeFilters) => {
     if (!user?.token) return;
 
     const params = {};
-    if (searchKeyword.trim()) {
-      params.keyword = searchKeyword.trim();
+    if (filters.keyword) {
+      params.keyword = filters.keyword;
     }
-    if (sizeFilter) {
-      params.size = sizeFilter;
+    if (filters.size) {
+      params.size = filters.size;
     }
-    if (priceValue !== '') {
-      params.unitPrice = priceValue;
-      params.priceFilter = priceOperator;
+    if (filters.unitPrice !== '') {
+      params.unitPrice = filters.unitPrice;
+      params.priceFilter = filters.priceFilter;
     }
 
     setLoading(true);
@@ -57,7 +64,7 @@ const Products = () => {
     } finally {
       setLoading(false);
     }
-  }, [user?.token, authHeaders, searchKeyword, sizeFilter, priceValue, priceOperator]);
+  }, [user?.token, authHeaders, activeFilters]);
 
   useEffect(() => {
     fetchProducts();
@@ -79,7 +86,15 @@ const Products = () => {
   };
 
   const applyFilters = () => {
-    fetchProducts();
+    const nextFilters = {
+      keyword: searchKeyword.trim(),
+      size: sizeFilter,
+      unitPrice: priceValue,
+      priceFilter: priceOperator,
+    };
+
+    setActiveFilters(nextFilters);
+    fetchProducts(nextFilters);
   };
 
   const clearFilters = () => {
@@ -87,15 +102,17 @@ const Products = () => {
     setSizeFilter('');
     setPriceValue('');
     setPriceOperator('gte');
+    const resetFilters = { keyword: '', size: '', unitPrice: '', priceFilter: 'gte' };
+    setActiveFilters(resetFilters);
+    fetchProducts(resetFilters);
   };
 
-  useEffect(() => {
-    if (!searchKeyword && !sizeFilter && priceValue === '' && priceOperator === 'gte') {
-      fetchProducts();
-    }
-  }, [searchKeyword, sizeFilter, priceValue, priceOperator, fetchProducts]);
-
   const handleDelete = async () => {
+    if (!isAdmin) {
+      alert('Only admin users can delete products.');
+      return;
+    }
+
     if (!selectedProduct) return;
 
     const ok = window.confirm(
@@ -161,7 +178,7 @@ const Products = () => {
               <button
                 type="button"
                 onClick={handleDelete}
-                disabled={!selectedProduct}
+                disabled={!selectedProduct || !isAdmin}
                 className="action-btn action-delete"
               >
               Delete
@@ -232,6 +249,7 @@ const Products = () => {
           <ProductForm
             mode={formMode}
             initialData={formMode === 'update' ? selectedProduct : null}
+            disableQuantity={formMode === 'update' && !isAdmin}
             onSubmit={handleFormSubmit}
             onCancel={closeForm}
           />

@@ -22,6 +22,15 @@ const ProductTable = ({ products = [], selectedProductId, onSelectProduct, loadi
       <h2 className="text-xl font-semibold mb-4">Products</h2>
       <div className="inventory-table-wrap">
         <table className="inventory-table">
+          <colgroup>
+            <col style={{ width: '80px' }} />
+            <col style={{ width: '180px' }} />
+            <col style={{ width: '90px' }} />
+            <col style={{ width: '70px' }} />
+            <col style={{ width: '70px' }} />
+            <col style={{ width: '90px' }} />
+            <col style={{ width: '100px' }} />
+          </colgroup>
           <thead>
             <tr>
               <th>SKU</th>
@@ -54,8 +63,8 @@ const ProductTable = ({ products = [], selectedProductId, onSelectProduct, loadi
                         src={product.image}
                         alt={product.productName}
                         className="product-thumb"
-                        onError={(event) => {
-                          event.currentTarget.style.display = 'none';
+                        onError={(e) => {
+                          e.target.parentElement.innerHTML = '<span class="no-image">Bad URL</span>';
                         }}
                       />
                     ) : (
