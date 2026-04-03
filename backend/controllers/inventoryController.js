@@ -49,8 +49,64 @@ const createProduct = async (req, res) => {
 };
 
 
-//View Products
+//Read Products with search/filter
 const getProducts = async (req, res) => {
+  const { keyword, colour, size, unitPrice, priceFilter } = req.query;
+
+  try {
+    const filter = {};
+
+    if (keyword) {
+      filter.$or = [
+        { sku: { $regex: keyword, $options: 'i' } },
+        { productName: { $regex: keyword, $options: 'i' } },
+      ];
+    }
+
+    if (colour) {
+      filter.colour = colour;
+    }
+
+    if (size) {
+      filter.size = size;
+    }
+
+    if (unitPrice !== undefined) {
+      if (priceFilter === 'lte') {
+        filter.unitPrice = { $lte: Number(unitPrice) };
+      } else if (priceFilter === 'gte') {
+        filter.unitPrice = { $gte: Number(unitPrice) };
+      } else {
+        filter.unitPrice = Number(unitPrice);
+      }
+    }
+
+    const products = await Product.find(filter).sort({ createdAt: -1 });
+    return res.status(200).json(products);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const getProductById = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found.' });
+    }
+
+    return res.status(200).json(product);
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).json({ message: 'Invalid product ID.' });
+    }
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+//Get products
+/*const getProducts = async (req, res) => {
 try {
 const products = await Product.find({ createdBy: req.user.id }).sort({ createdAt: -1 });
 return res.status(200).json(products);
@@ -58,20 +114,7 @@ return res.status(200).json(products);
 return res.status(500).json({ message: error.message });
 }
 };
-
-const getProductById = async (req, res) => {
-try {
-const product = await Product.findOne({ _id: req.params.id, createdBy: req.user.id });
-  if (!product) {
-    return res.status(404).json({ message: 'Product not found.' });
-  }
-
-  return res.status(200).json(product);
-} catch (error) {
-  return res.status(500).json({ message: error.message });
-}
-};
-
+*/
 
 //Update Product
 const updateProduct = async (req, res) => {
@@ -87,13 +130,16 @@ const updateProduct = async (req, res) => {
   } = req.body;
 
   try {
-    const product = await Product.findOne({ _id: req.params.id, createdBy: req.user.id });
+    const product = await Product.findById(req.params.id);
 
     if (!product) {
       return res.status(404).json({ message: 'Product not found.' });
     }
 
-    //Check SKU is still unique after change
+    if (req.user.role !== 'admin' && stockQty !== undefined) {
+      return res.status(403).json({ message: 'Staff are not allowed to adjust quantity.' });
+    }
+
     if (sku && sku !== product.sku) {
       const skuExists = await Product.findOne({ sku });
       if (skuExists) {
@@ -108,10 +154,12 @@ const updateProduct = async (req, res) => {
     product.image = image !== undefined ? image : product.image;
 
     if (unitPrice !== undefined) product.unitPrice = Number(unitPrice);
-    if (stockQty !== undefined) product.stockQty = Number(stockQty);
     if (lowStockThreshold !== undefined) product.lowStockThreshold = Number(lowStockThreshold);
 
-    //Recalculate total value when price/qty change
+    if (req.user.role === 'admin' && stockQty !== undefined) {
+      product.stockQty = Number(stockQty);
+    }
+
     product.totalValue = Number(product.unitPrice) * Number(product.stockQty);
 
     const updatedProduct = await product.save();
@@ -127,17 +175,17 @@ const updateProduct = async (req, res) => {
 //Delete Product
 const deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findOne({ _id: req.params.id, createdBy: req.user.id });
+    const product = await Product.findById(req.params.id);
 
     if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
+      return res.status(404).json({ message: 'Product not found.' });
     }
 
     await product.deleteOne();
-    return res.status(200).json({ message: 'Product deleted successfully' });
+    return res.status(200).json({ message: 'Product deleted successfully.' });
   } catch (error) {
     if (error.name === 'CastError') {
-      return res.status(400).json({ message: 'Invalid product ID' });
+      return res.status(400).json({ message: 'Invalid product ID.' });
     }
     return res.status(500).json({ message: error.message });
   }
