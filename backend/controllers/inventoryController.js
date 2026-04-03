@@ -124,4 +124,23 @@ const updateProduct = async (req, res) => {
   }
 };
 
-module.exports = { createProduct, getProducts, getProductById, updateProduct };
+//Delete Product
+const deleteProduct = async (req, res) => {
+  try {
+    const product = await Product.findOne({ _id: req.params.id, createdBy: req.user.id });
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    await product.deleteOne();
+    return res.status(200).json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).json({ message: 'Invalid product ID' });
+    }
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { createProduct, getProducts, getProductById, updateProduct, deleteProduct };
