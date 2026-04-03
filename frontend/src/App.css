@@ -1,4 +1,4 @@
-.App {
+/*.App {
   text-align: center;
 }
 
@@ -35,4 +35,142 @@
   to {
     transform: rotate(360deg);
   }
+}
+*/
+:root {
+  --bg-deep: #1f3047;
+  --bg-mid: #2e4768;
+  --bg-soft: #3f5f86;
+  --panel: #ffffff;
+  --text-on-dark: #d6dde7;
+  --border-soft: #d7dee8;
+  --shadow: 0 14px 32px rgba(0, 0, 0, 0.25);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: radial-gradient(circle at center, var(--bg-soft) 0%, var(--bg-mid) 42%, var(--bg-deep) 100%);
+  color: var(--text-on-dark);
+}
+
+/* Auth pages */
+.auth-page {
+  min-height: calc(100vh - 72px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.auth-card {
+  width: min(460px, 94vw);
+  background: var(--panel);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 22px;
+  color: #1f2937;
+}
+
+.auth-card h1 {
+  margin: 0 0 14px;
+  text-align: center;
+  color: #111827;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.field {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  font-size: 15px;
+  color: #111827;
+  background: #fff;
+}
+
+.btn-auth {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  background: #2f3136;
+  cursor: pointer;
+}
+
+.btn-auth:hover {
+  background: #1f2125;
+}
+
+/* Dashboard */
+.dashboard-page {
+  min-height: calc(100vh - 72px);
+  padding: 20px;
+}
+
+.dashboard-container {
+  width: min(1240px, 96vw);
+  margin: 0 auto;
+}
+
+.panel-white {
+  background: var(--panel);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 18px;
+  color: #1f2937;
+  margin-bottom: 16px;
+}
+
+.inventory-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.inventory-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+  table-layout: auto;
+  color: #111827;
+}
+
+.inventory-table th,
+.inventory-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+  font-size: 14px;
+  text-align: left;
+}
+
+.inventory-table th {
+  background: #f8fafc;
+  font-weight: 700;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.inventory-table tbody tr:hover {
+  background: #f8fbff;
+}
+
+.inventory-table tbody tr.selected-row {
+  background: #dbeafe;
 }

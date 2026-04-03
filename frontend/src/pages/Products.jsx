@@ -1,46 +1,4 @@
-/*import { useState, useEffect } from 'react';
-import axiosInstance from '../axiosConfig';
-import TaskForm from '../components/ProductForm';
-import TaskList from '../components/ProductTable';
-import { useAuth } from '../context/AuthContext';
-
-const Tasks = () => {
-  const { user } = useAuth();
-  const [tasks, setTasks] = useState([]);
-  const [editingTask, setEditingTask] = useState(null);
-
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await axiosInstance.get('/api/tasks', {
-          headers: { Authorization: `Bearer ${user.token}` },
-        });
-        setTasks(response.data);
-      } catch (error) {
-        alert('Failed to fetch tasks.');
-      }
-    };
-
-    fetchTasks();
-  }, [user]);
-
-  return (
-    <div className="container mx-auto p-6">
-      <TaskForm
-        tasks={tasks}
-        setTasks={setTasks}
-        editingTask={editingTask}
-        setEditingTask={setEditingTask}
-      />
-      <TaskList tasks={tasks} setTasks={setTasks} setEditingTask={setEditingTask} />
-    </div>
-  );
-};
-
-export default Tasks;
-*/
-
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import axiosInstance from '../axiosConfig';
 import ProductForm from '../components/ProductForm';
 import ProductTable from '../components/ProductTable';
@@ -60,11 +18,12 @@ const Products = () => {
     [products, selectedProductId]
   );
 
-  const authHeaders = {
-    headers: { Authorization: 'Bearer ' + (user?.token || '') },
-  };
+  const authHeaders = useMemo(
+    () => ({ headers: { Authorization: 'Bearer ' + (user?.token || '') } }),
+    [user?.token]
+  );
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     if (!user?.token) return;
     setLoading(true);
     try {
@@ -75,11 +34,11 @@ const Products = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.token, authHeaders]);
 
   useEffect(() => {
     fetchProducts();
-  }, [user?.token]);
+  }, [fetchProducts]);
 
   const openCreateForm = () => {
     setFormMode('create');
