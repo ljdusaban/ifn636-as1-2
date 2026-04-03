@@ -179,7 +179,7 @@ const ProductForm = ({ mode, initialData, disableQuantity, onSubmit, onCancel })
             </div>
           </div>
           {disableQuantity && (
-            <p className="field-hint">Staff users can update other details but cannot change quantity.</p>
+            <p className="field-hint">Staff users cannot change quantity.</p>
           )}
         </div>
 
@@ -193,7 +193,7 @@ const ProductForm = ({ mode, initialData, disableQuantity, onSubmit, onCancel })
             placeholder="https://example.com/product.jpg"
             className="field"
           />
-          <p className="field-hint">Must be a direct image URL ending in .jpg, .png, .webp, etc. (not a webpage link).</p>
+          <p className="field-hint">Must be a direct image URL (not a webpage link).</p>
         </div>
 
         <div className="md:col-span-2 flex gap-3">
